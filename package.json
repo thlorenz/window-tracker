@@ -1,0 +1,17 @@
+{
+  "name": "window-tracker",
+  "version": "1.0.0",
+  "description": "Tracks windows and supplies app title+id, window title+id and window bounds.",
+  "main": "window-tracker.js",
+  "scripts": {
+    "test": "node ./examples/query.js"
+  },
+  "keywords": [
+    "windows",
+    "window",
+    "osx",
+    "bounds"
+  ],
+  "author": "Thorsten Lorenz <thlorenz10@gmail.com>",
+  "license": "MIT"
+}
