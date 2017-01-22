@@ -51,6 +51,7 @@ Make sure to subscribe to `error` and `info` when using the tracking interface.
 const { inspect } = require('util')
 const getWindowTracker = require('window-tracker')
 
+// appFilter and windowFilter can be a predicate or a RegExp
 const appFilter = /MacVim/i
 const windowFilter = /window-tracker/i
 

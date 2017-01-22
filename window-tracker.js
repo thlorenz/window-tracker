@@ -3,19 +3,22 @@ const { exec } = require('child_process')
 const path = require('path')
 const cmd = path.join(__dirname, 'window-tracker')
 
-function filterFromRegExp(r) {
+function filterFromRegExpOrFunction(r) {
   if (r == null) return function notest(x) { return true }
+  if (typeof r === 'function') return r
   return function testRx(x) { return r.test(x) }
 }
 
 class WindowTracker extends EventEmitter {
   constructor({ interval = 10000, appFilter, windowFilter }) {
     super()
-    if (appFilter != null && !(appFilter instanceof RegExp)) {
-      throw new Error('appFilter needs to be a RegExp')
+    if (appFilter != null &&
+      !(appFilter instanceof RegExp || typeof appFilter !== 'function')) {
+      throw new Error('appFilter needs to be a RegExp or a function')
     }
-    if (windowFilter != null && !(windowFilter instanceof RegExp)) {
-      throw new Error('windowFilter needs to be a RegExp')
+    if (windowFilter != null &&
+      !(windowFilter instanceof RegExp || typeof appFilter !== 'function')) {
+      throw new Error('windowFilter needs to be a RegExp or a function')
     }
 
     if (interval != null && typeof interval !== 'number') {
@@ -23,8 +26,8 @@ class WindowTracker extends EventEmitter {
     }
 
     this._interval = interval
-    this._appFilter = filterFromRegExp(appFilter)
-    this._windowFilter = filterFromRegExp(windowFilter)
+    this._appFilter = filterFromRegExpOrFunction(appFilter)
+    this._windowFilter = filterFromRegExpOrFunction(windowFilter)
   }
 
   start() {
@@ -42,6 +45,15 @@ class WindowTracker extends EventEmitter {
     return this
   }
 
+  _safeParse(line) {
+    try {
+      return JSON.parse(line)
+    } catch (err) {
+      this.emit('error', err)
+      return null
+    }
+  }
+
   _onresult(err, res, cb) {
     if (err) {
       if (cb !== null) cb(err)
@@ -50,7 +62,8 @@ class WindowTracker extends EventEmitter {
     const infos = res
       .split('\n')
       .filter(line => line && line.trim().length)
-      .map(line => JSON.parse(line))
+      .map(line => this._safeParse(line))
+      .filter(x => x != null)
 
     const relevantInfos = infos
       .filter(x => this._appFilter(x.app) && this._windowFilter(x.window))
