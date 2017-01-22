@@ -1,6 +1,6 @@
 {
   "name": "window-tracker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tracks windows and supplies app title+id, window title+id and window bounds.",
   "main": "window-tracker.js",
   "scripts": {
